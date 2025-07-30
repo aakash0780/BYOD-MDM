@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Date:** July 30, 2025  
-**Author:** Manus AI  
+**Author:** Aakash Mali  
 
 ## Overview
 
