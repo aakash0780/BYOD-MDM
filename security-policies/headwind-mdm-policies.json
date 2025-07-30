@@ -1,0 +1,304 @@
+{
+  "headwind_mdm_security_policies": {
+    "policy_version": "1.0",
+    "last_updated": "2025-07-30",
+    "description": "Comprehensive security policies for Headwind MDM BYOD deployment",
+    
+    "device_security_policies": {
+      "password_policy": {
+        "enabled": true,
+        "minimum_length": 8,
+        "require_uppercase": true,
+        "require_lowercase": true,
+        "require_numbers": true,
+        "require_special_characters": true,
+        "maximum_failed_attempts": 5,
+        "lockout_duration_minutes": 15,
+        "password_expiry_days": 90,
+        "password_history_count": 5
+      },
+      
+      "screen_lock_policy": {
+        "enabled": true,
+        "auto_lock_timeout_minutes": 5,
+        "require_lock_screen": true,
+        "allow_fingerprint": true,
+        "allow_face_unlock": false,
+        "allow_smart_lock": false
+      },
+      
+      "encryption_policy": {
+        "enabled": true,
+        "require_device_encryption": true,
+        "require_sd_card_encryption": true,
+        "encryption_algorithm": "AES-256"
+      }
+    },
+    
+    "application_security_policies": {
+      "app_installation_policy": {
+        "enabled": true,
+        "allow_unknown_sources": false,
+        "require_app_verification": true,
+        "whitelist_mode": true,
+        "blacklist_mode": false,
+        "auto_install_work_apps": true,
+        "prevent_uninstall_work_apps": true
+      },
+      
+      "work_profile_policy": {
+        "enabled": true,
+        "create_work_profile": true,
+        "separate_work_personal": true,
+        "work_profile_name": "Work Profile",
+        "allow_cross_profile_copy_paste": false,
+        "allow_cross_profile_data_sharing": false,
+        "work_profile_password_required": true
+      },
+      
+      "approved_applications": [
+        {
+          "package_name": "com.microsoft.office.outlook",
+          "app_name": "Microsoft Outlook",
+          "category": "email",
+          "required": true,
+          "auto_install": true
+        },
+        {
+          "package_name": "com.microsoft.teams",
+          "app_name": "Microsoft Teams",
+          "category": "communication",
+          "required": true,
+          "auto_install": true
+        },
+        {
+          "package_name": "com.microsoft.office.word",
+          "app_name": "Microsoft Word",
+          "category": "productivity",
+          "required": false,
+          "auto_install": false
+        },
+        {
+          "package_name": "com.slack",
+          "app_name": "Slack",
+          "category": "communication",
+          "required": false,
+          "auto_install": false
+        },
+        {
+          "package_name": "com.openvpn.openvpn",
+          "app_name": "OpenVPN Connect",
+          "category": "security",
+          "required": true,
+          "auto_install": true
+        }
+      ],
+      
+      "blocked_applications": [
+        {
+          "package_name": "com.whatsapp",
+          "reason": "Potential data leakage through personal messaging"
+        },
+        {
+          "package_name": "com.snapchat.android",
+          "reason": "Screenshot and data sharing concerns"
+        },
+        {
+          "package_name": "com.tiktok",
+          "reason": "Data privacy and security concerns"
+        }
+      ]
+    },
+    
+    "data_protection_policies": {
+      "screenshot_policy": {
+        "enabled": true,
+        "block_screenshots_in_work_apps": true,
+        "block_screen_recording": true,
+        "watermark_screenshots": true,
+        "log_screenshot_attempts": true
+      },
+      
+      "clipboard_policy": {
+        "enabled": true,
+        "block_copy_from_work_apps": true,
+        "block_paste_to_personal_apps": true,
+        "clear_clipboard_timeout_seconds": 30,
+        "log_clipboard_access": true
+      },
+      
+      "file_sharing_policy": {
+        "enabled": true,
+        "block_file_sharing_from_work_apps": true,
+        "allowed_cloud_storage": [
+          "com.microsoft.onedrive",
+          "com.google.android.apps.docs"
+        ],
+        "blocked_file_sharing_apps": [
+          "com.dropbox.android",
+          "com.box.android"
+        ],
+        "require_dlp_for_documents": true
+      },
+      
+      "backup_policy": {
+        "enabled": true,
+        "allow_cloud_backup": false,
+        "allow_local_backup": false,
+        "exclude_work_data_from_backup": true
+      }
+    },
+    
+    "network_security_policies": {
+      "wifi_policy": {
+        "enabled": true,
+        "require_enterprise_wifi": true,
+        "block_open_wifi": true,
+        "allowed_wifi_networks": [
+          {
+            "ssid": "Corporate-WiFi",
+            "security_type": "WPA2-Enterprise",
+            "required": true
+          }
+        ],
+        "auto_connect_corporate_wifi": true
+      },
+      
+      "vpn_policy": {
+        "enabled": true,
+        "require_vpn_for_work_apps": true,
+        "vpn_server": "vpn.company.com",
+        "vpn_protocol": "OpenVPN",
+        "auto_connect_vpn": true,
+        "block_internet_without_vpn": true
+      },
+      
+      "bluetooth_policy": {
+        "enabled": true,
+        "allow_bluetooth": true,
+        "require_bluetooth_pairing_approval": true,
+        "block_bluetooth_file_transfer": true,
+        "allowed_bluetooth_devices": []
+      }
+    },
+    
+    "device_restrictions": {
+      "camera_policy": {
+        "enabled": true,
+        "block_camera_in_work_apps": false,
+        "require_camera_permission_approval": true,
+        "log_camera_usage": true
+      },
+      
+      "microphone_policy": {
+        "enabled": true,
+        "block_microphone_in_work_apps": false,
+        "require_microphone_permission_approval": true,
+        "log_microphone_usage": true
+      },
+      
+      "location_policy": {
+        "enabled": true,
+        "allow_location_services": true,
+        "require_location_for_work_apps": false,
+        "log_location_access": true,
+        "location_accuracy": "coarse"
+      },
+      
+      "usb_policy": {
+        "enabled": true,
+        "block_usb_debugging": true,
+        "block_usb_file_transfer": true,
+        "allow_usb_charging": true,
+        "log_usb_connections": true
+      },
+      
+      "developer_options_policy": {
+        "enabled": true,
+        "block_developer_options": true,
+        "block_adb_access": true,
+        "block_mock_locations": true
+      }
+    },
+    
+    "compliance_monitoring": {
+      "device_compliance_checks": {
+        "enabled": true,
+        "check_frequency_hours": 4,
+        "required_os_version": "8.0",
+        "block_rooted_devices": true,
+        "require_security_patch_level": true,
+        "max_security_patch_age_days": 90
+      },
+      
+      "app_compliance_checks": {
+        "enabled": true,
+        "scan_for_malware": true,
+        "check_app_permissions": true,
+        "verify_app_signatures": true,
+        "block_sideloaded_apps": true
+      },
+      
+      "policy_violation_actions": {
+        "warning_notification": true,
+        "email_admin_notification": true,
+        "temporary_access_restriction": true,
+        "complete_device_wipe": false,
+        "work_profile_wipe": true
+      }
+    },
+    
+    "remote_management": {
+      "remote_wipe_policy": {
+        "enabled": true,
+        "allow_selective_wipe": true,
+        "allow_full_device_wipe": false,
+        "require_admin_approval": true,
+        "wipe_confirmation_required": true
+      },
+      
+      "remote_lock_policy": {
+        "enabled": true,
+        "allow_remote_lock": true,
+        "lock_timeout_minutes": 60,
+        "require_admin_approval": false
+      },
+      
+      "location_tracking_policy": {
+        "enabled": false,
+        "track_device_location": false,
+        "location_update_frequency_minutes": 60,
+        "require_user_consent": true
+      }
+    },
+    
+    "notification_policies": {
+      "work_notifications": {
+        "enabled": true,
+        "show_work_notifications_on_lock_screen": true,
+        "allow_notification_content_preview": false,
+        "separate_work_personal_notifications": true
+      },
+      
+      "policy_update_notifications": {
+        "enabled": true,
+        "notify_policy_changes": true,
+        "require_user_acknowledgment": true,
+        "notification_timeout_hours": 24
+      }
+    }
+  },
+  
+  "implementation_notes": {
+    "work_profile_setup": "Headwind MDM should be configured to create and manage Android Work Profiles for BYOD devices. This provides the necessary separation between personal and work data while enabling the security policies defined above.",
+    
+    "policy_enforcement": "Policies should be enforced through Android's Device Policy Manager API and Work Profile management. Some restrictions may require specific Android versions or device capabilities.",
+    
+    "user_privacy": "All policies are designed to respect user privacy by focusing on work-related data and applications. Personal data and applications remain under user control.",
+    
+    "compliance_reporting": "Regular compliance reports should be generated to monitor policy adherence and identify potential security risks.",
+    
+    "policy_updates": "Security policies should be reviewed and updated regularly to address new threats and changing business requirements."
+  }
+}
+

@@ -1,0 +1,394 @@
+{
+  "ios_mdm_configuration_profiles": {
+    "profile_version": "1.0",
+    "last_updated": "2025-07-30",
+    "description": "Configuration profiles and security policies for iOS BYOD deployment using MicroMDM/NanoMDM",
+    
+    "user_enrollment_profile": {
+      "profile_identifier": "com.company.userenrollment",
+      "profile_display_name": "Company User Enrollment",
+      "profile_description": "Enrollment profile for BYOD devices using User Enrollment",
+      "profile_type": "Configuration",
+      "profile_version": 1,
+      "profile_scope": "User",
+      "removal_disallowed": false,
+      "payloads": [
+        {
+          "payload_type": "com.apple.mdm",
+          "payload_identifier": "com.company.mdm",
+          "payload_display_name": "Mobile Device Management",
+          "payload_description": "Configures device management settings",
+          "server_url": "https://your-mdm-domain.com/mdm/checkin",
+          "check_in_url": "https://your-mdm-domain.com/mdm/checkin",
+          "check_out_when_removed": true,
+          "access_rights": 8191,
+          "use_development_apns": false,
+          "sign_message": true,
+          "topic": "com.apple.mgmt.External"
+        }
+      ]
+    },
+    
+    "security_policies": {
+      "passcode_policy": {
+        "profile_identifier": "com.company.passcode",
+        "profile_display_name": "Passcode Policy",
+        "profile_description": "Enforces strong passcode requirements",
+        "payload_type": "com.apple.mobiledevice.passwordpolicy",
+        "settings": {
+          "force_pin": true,
+          "allow_simple": false,
+          "require_alphanumeric": true,
+          "min_length": 8,
+          "min_complex_chars": 1,
+          "max_pin_age_in_days": 90,
+          "max_inactivity": 300,
+          "pin_history": 5,
+          "max_failed_attempts": 5,
+          "max_grace_period": 0,
+          "allow_fingerprint_for_unlock": true,
+          "allow_face_id_for_unlock": true,
+          "change_at_next_auth": false
+        }
+      },
+      
+      "restrictions_policy": {
+        "profile_identifier": "com.company.restrictions",
+        "profile_display_name": "Device Restrictions",
+        "profile_description": "Configures device restrictions for security",
+        "payload_type": "com.apple.applicationaccess",
+        "settings": {
+          "allow_app_installation": true,
+          "allow_app_removal": true,
+          "allow_camera": true,
+          "allow_facetime": true,
+          "allow_screen_shot": true,
+          "allow_voice_dialing": true,
+          "allow_safari": true,
+          "allow_siri": true,
+          "allow_assistant": true,
+          "allow_assistant_while_locked": false,
+          "allow_dictation": true,
+          "allow_definition_lookup": true,
+          "allow_explicit_content": false,
+          "allow_ibooks_store": true,
+          "allow_itunes": true,
+          "allow_multiplayer_gaming": true,
+          "allow_adding_game_center_friends": true,
+          "allow_app_cellular_data_modification": false,
+          "allow_ui_configuration_profile_installation": false,
+          "allow_untrusted_tls_prompt": false,
+          "force_encrypted_backup": true,
+          "allow_backup": true,
+          "allow_cloud_backup": false,
+          "allow_document_sync": false,
+          "allow_keychain_cloud_sync": false,
+          "allow_cloud_photo_library": false,
+          "allow_managed_apps_cloud_sync": false,
+          "allow_enterprise_book_backup": false,
+          "allow_enterprise_book_metadata_sync": false
+        }
+      },
+      
+      "wifi_policy": {
+        "profile_identifier": "com.company.wifi",
+        "profile_display_name": "Corporate Wi-Fi",
+        "profile_description": "Configures corporate Wi-Fi settings",
+        "payload_type": "com.apple.wifi.managed",
+        "settings": {
+          "ssid": "Corporate-WiFi",
+          "hidden_network": false,
+          "auto_join": true,
+          "security_type": "WPA2",
+          "encryption_type": "AES",
+          "is_hotspot": false,
+          "domain_name": "company.com",
+          "service_provider_roaming_enabled": false,
+          "roaming_consortium_ois": [],
+          "nai_realm_names": [],
+          "mcc_and_mncs": [],
+          "captive_bypass": false,
+          "qos_marking_policy": "fast-lane"
+        }
+      },
+      
+      "vpn_policy": {
+        "profile_identifier": "com.company.vpn",
+        "profile_display_name": "Corporate VPN",
+        "profile_description": "Configures VPN connection for secure access",
+        "payload_type": "com.apple.vpn.managed",
+        "settings": {
+          "vpn_type": "IKEv2",
+          "server_address": "vpn.company.com",
+          "username": "{{USER_NAME}}",
+          "authentication_method": "Certificate",
+          "local_identifier": "{{USER_EMAIL}}",
+          "remote_identifier": "vpn.company.com",
+          "extended_auth_enabled": false,
+          "auth_name": "{{USER_NAME}}",
+          "auth_password": "{{USER_PASSWORD}}",
+          "disconnect_on_sleep": false,
+          "send_all_traffic": false,
+          "override_primary": false,
+          "disconnect_on_logout": true,
+          "disconnect_on_user_switch": true,
+          "reconnect_on_wakeup": true,
+          "enable_vpn_on_demand": true,
+          "on_demand_rules": [
+            {
+              "action": "Connect",
+              "dns_domain_match": ["company.com"],
+              "dns_server_address_match": [],
+              "interface_type_match": "WiFi",
+              "ssid_match": ["Corporate-WiFi"],
+              "url_string_probe": "https://internal.company.com"
+            }
+          ]
+        }
+      },
+      
+      "email_policy": {
+        "profile_identifier": "com.company.email",
+        "profile_display_name": "Corporate Email",
+        "profile_description": "Configures corporate email account",
+        "payload_type": "com.apple.mail.managed",
+        "settings": {
+          "email_account_description": "Corporate Email",
+          "email_account_name": "{{USER_NAME}}",
+          "email_account_type": "EmailTypeIMAP",
+          "email_address": "{{USER_EMAIL}}",
+          "incoming_mail_server_authentication": "EmailAuthPassword",
+          "incoming_mail_server_host_name": "mail.company.com",
+          "incoming_mail_server_port_number": 993,
+          "incoming_mail_server_use_ssl": true,
+          "incoming_mail_server_username": "{{USER_EMAIL}}",
+          "incoming_password": "{{USER_PASSWORD}}",
+          "outgoing_mail_server_authentication": "EmailAuthPassword",
+          "outgoing_mail_server_host_name": "mail.company.com",
+          "outgoing_mail_server_port_number": 587,
+          "outgoing_mail_server_use_ssl": true,
+          "outgoing_mail_server_username": "{{USER_EMAIL}}",
+          "outgoing_password": "{{USER_PASSWORD}}",
+          "prevent_move": false,
+          "prevent_app_sheet": false,
+          "smime_enabled": false,
+          "smime_signing_enabled": false,
+          "smime_encryption_enabled": false,
+          "disable_mail_recent_syncing": false,
+          "allow_mail_drop": false
+        }
+      },
+      
+      "certificate_policy": {
+        "profile_identifier": "com.company.certificate",
+        "profile_display_name": "Corporate Certificate",
+        "profile_description": "Installs corporate root certificate",
+        "payload_type": "com.apple.security.root",
+        "settings": {
+          "certificate_file_name": "corporate-root-ca.pem",
+          "certificate_common_name": "Corporate Root CA",
+          "allow_all_apps_access": false,
+          "key_is_extractable": false
+        }
+      }
+    },
+    
+    "managed_applications": {
+      "app_installation_policy": {
+        "profile_identifier": "com.company.apps",
+        "profile_display_name": "Managed Applications",
+        "profile_description": "Configures managed application settings",
+        "auto_install_apps": true,
+        "prevent_backup": true,
+        "remove_on_mdm_removal": true
+      },
+      
+      "required_apps": [
+        {
+          "bundle_id": "com.microsoft.Office.Outlook",
+          "app_name": "Microsoft Outlook",
+          "category": "Business",
+          "auto_install": true,
+          "prevent_removal": true,
+          "app_configuration": {
+            "com.microsoft.outlook.EmailProfile.EmailAddress": "{{USER_EMAIL}}",
+            "com.microsoft.outlook.EmailProfile.ServerHostName": "mail.company.com",
+            "com.microsoft.outlook.EmailProfile.ServerUseSSL": true
+          }
+        },
+        {
+          "bundle_id": "com.microsoft.skype.teams",
+          "app_name": "Microsoft Teams",
+          "category": "Business",
+          "auto_install": true,
+          "prevent_removal": true,
+          "app_configuration": {
+            "com.microsoft.teams.TenantId": "{{TENANT_ID}}",
+            "com.microsoft.teams.DefaultDomain": "company.com"
+          }
+        },
+        {
+          "bundle_id": "com.microsoft.Office.Word",
+          "app_name": "Microsoft Word",
+          "category": "Productivity",
+          "auto_install": false,
+          "prevent_removal": false,
+          "app_configuration": {}
+        },
+        {
+          "bundle_id": "com.openvpn.OpenVPN-Connect",
+          "app_name": "OpenVPN Connect",
+          "category": "Utilities",
+          "auto_install": true,
+          "prevent_removal": true,
+          "app_configuration": {
+            "com.openvpn.connect.ServerAddress": "vpn.company.com",
+            "com.openvpn.connect.Username": "{{USER_NAME}}"
+          }
+        }
+      ],
+      
+      "blocked_apps": [
+        {
+          "bundle_id": "com.whatsapp.WhatsApp",
+          "reason": "Potential data leakage through personal messaging"
+        },
+        {
+          "bundle_id": "com.snapchat.Snapchat",
+          "reason": "Screenshot and data sharing concerns"
+        },
+        {
+          "bundle_id": "com.zhiliaoapp.musically",
+          "reason": "Data privacy and security concerns"
+        }
+      ]
+    },
+    
+    "data_protection_settings": {
+      "app_data_protection": {
+        "profile_identifier": "com.company.dataprotection",
+        "profile_display_name": "Data Protection",
+        "profile_description": "Configures data protection for managed apps",
+        "settings": {
+          "allow_open_from_managed_to_unmanaged": false,
+          "allow_open_from_unmanaged_to_managed": false,
+          "allow_managed_apps_cloud_sync": false,
+          "allow_managed_apps_write_unmanaged_contacts": false,
+          "allow_unmanaged_apps_read_managed_contacts": false,
+          "force_airdrop_unmanaged": true,
+          "force_assignment_of_managed_apps_in_unmanaged_documents": true
+        }
+      },
+      
+      "content_filtering": {
+        "profile_identifier": "com.company.contentfilter",
+        "profile_display_name": "Content Filtering",
+        "profile_description": "Configures content filtering and web restrictions",
+        "settings": {
+          "auto_filter_enabled": true,
+          "restrict_web_search": false,
+          "use_content_filter": true,
+          "whitelist_enabled": false,
+          "blacklist_enabled": true,
+          "blacklisted_urls": [
+            "*.facebook.com",
+            "*.twitter.com",
+            "*.instagram.com",
+            "*.tiktok.com"
+          ]
+        }
+      }
+    },
+    
+    "compliance_monitoring": {
+      "device_compliance": {
+        "minimum_os_version": "15.0",
+        "maximum_os_version": "",
+        "require_device_encryption": true,
+        "block_jailbroken_devices": true,
+        "require_passcode": true,
+        "check_compliance_frequency_hours": 4
+      },
+      
+      "app_compliance": {
+        "scan_for_malicious_apps": true,
+        "verify_app_signatures": true,
+        "check_app_permissions": true,
+        "monitor_app_usage": false
+      },
+      
+      "violation_actions": {
+        "send_notification": true,
+        "email_administrator": true,
+        "restrict_managed_apps": true,
+        "remove_managed_data": false,
+        "unenroll_device": false
+      }
+    },
+    
+    "remote_management_capabilities": {
+      "allowed_commands": [
+        "DeviceInformation",
+        "InstalledApplicationList",
+        "CertificateList",
+        "SecurityInfo",
+        "ProfileList",
+        "Restrictions",
+        "InstallProfile",
+        "RemoveProfile",
+        "InstallApplication",
+        "RemoveApplication",
+        "ClearPasscode",
+        "EraseDevice"
+      ],
+      
+      "remote_wipe_settings": {
+        "allow_remote_wipe": true,
+        "wipe_managed_data_only": true,
+        "require_admin_approval": true,
+        "preserve_data_plan": true,
+        "disable_activation_lock": false
+      },
+      
+      "device_lock_settings": {
+        "allow_remote_lock": true,
+        "lock_message": "This device has been remotely locked by your organization. Please contact IT support.",
+        "phone_number": "+1-555-123-4567"
+      }
+    }
+  },
+  
+  "enrollment_instructions": {
+    "user_enrollment_steps": [
+      "1. Open Settings app on your iOS device",
+      "2. Navigate to General > VPN & Device Management",
+      "3. Tap 'Download Profile' or scan the QR code provided",
+      "4. Follow the on-screen instructions to install the enrollment profile",
+      "5. Enter your corporate credentials when prompted",
+      "6. Complete the enrollment process",
+      "7. Verify that managed apps are installed automatically"
+    ],
+    
+    "prerequisites": [
+      "iOS device running iOS 13.0 or later",
+      "Valid corporate email address",
+      "Device must not be supervised or enrolled in another MDM",
+      "Internet connectivity for profile download and app installation"
+    ],
+    
+    "user_privacy_notice": "User Enrollment creates a separate managed Apple ID and managed APFS volume on your device. Your personal data, apps, and settings remain private and under your control. Only work-related data and apps installed through the corporate app store will be managed by your organization."
+  },
+  
+  "implementation_notes": {
+    "apple_business_manager": "For streamlined deployment, consider using Apple Business Manager (ABM) to purchase and distribute apps. This enables Volume Purchase Program (VPP) for app licensing.",
+    
+    "certificate_management": "Ensure proper certificate management for MDM communication, including APNs certificates, push certificates, and identity certificates for devices.",
+    
+    "user_enrollment_limitations": "User Enrollment has limitations compared to Device Enrollment. Some restrictions and monitoring capabilities are not available to preserve user privacy.",
+    
+    "app_configuration": "Use app configuration policies to pre-configure managed apps with corporate settings, reducing the need for manual user configuration.",
+    
+    "compliance_reporting": "Implement regular compliance reporting to monitor device and app compliance with corporate policies."
+  }
+}
+

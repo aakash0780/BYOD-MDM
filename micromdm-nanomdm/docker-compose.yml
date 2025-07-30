@@ -1,0 +1,225 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for MicroMDM/NanoMDM
+  postgres:
+    image: postgres:13
+    container_name: micromdm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-micromdm}
+      POSTGRES_USER: ${POSTGRES_USER:-micromdm}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-topsecret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - micromdm-network
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-micromdm}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # NanoMDM Server
+  nanomdm:
+    image: micromdm/nanomdm:latest
+    container_name: nanomdm-server
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database Configuration
+      NANOMDM_STORAGE: postgres
+      NANOMDM_POSTGRES_HOST: postgres
+      NANOMDM_POSTGRES_PORT: 5432
+      NANOMDM_POSTGRES_DATABASE: ${POSTGRES_DB:-micromdm}
+      NANOMDM_POSTGRES_USERNAME: ${POSTGRES_USER:-micromdm}
+      NANOMDM_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-topsecret}
+      
+      # Server Configuration
+      NANOMDM_HTTP_LISTEN: :8080
+      NANOMDM_HTTP_DEBUG: ${DEBUG_MODE:-false}
+      
+      # APNs Configuration
+      NANOMDM_APNS_CERT_FILE: /certs/apns.pem
+      NANOMDM_APNS_KEY_FILE: /certs/apns-key.pem
+      NANOMDM_APNS_TOPIC: ${APNS_TOPIC:-com.apple.mgmt.External}
+      
+      # Push Certificate Configuration
+      NANOMDM_PUSH_CERT_FILE: /certs/push.pem
+      NANOMDM_PUSH_KEY_FILE: /certs/push-key.pem
+      
+      # TLS Configuration
+      NANOMDM_TLS_CERT_FILE: /certs/server.pem
+      NANOMDM_TLS_KEY_FILE: /certs/server-key.pem
+      
+      # Webhook Configuration (optional)
+      NANOMDM_WEBHOOK_URL: ${WEBHOOK_URL:-}
+      
+      # Logging
+      NANOMDM_LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      # Certificates directory
+      - ./certs:/certs:ro
+      
+      # Configuration files
+      - nanomdm_config:/config
+      
+      # Logs
+      - nanomdm_logs:/logs
+    networks:
+      - micromdm-network
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MicroMDM Server (alternative to NanoMDM)
+  micromdm:
+    image: micromdm/micromdm:latest
+    container_name: micromdm-server
+    restart: unless-stopped
+    profiles:
+      - micromdm
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database Configuration
+      MICROMDM_POSTGRES_HOST: postgres
+      MICROMDM_POSTGRES_PORT: 5432
+      MICROMDM_POSTGRES_DATABASE: ${POSTGRES_DB:-micromdm}
+      MICROMDM_POSTGRES_USERNAME: ${POSTGRES_USER:-micromdm}
+      MICROMDM_POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-topsecret}
+      
+      # Server Configuration
+      MICROMDM_HTTP_LISTEN: :8080
+      MICROMDM_HTTP_DEBUG: ${DEBUG_MODE:-false}
+      
+      # APNs Configuration
+      MICROMDM_APNS_CERT_FILE: /certs/apns.pem
+      MICROMDM_APNS_KEY_FILE: /certs/apns-key.pem
+      MICROMDM_APNS_TOPIC: ${APNS_TOPIC:-com.apple.mgmt.External}
+      
+      # TLS Configuration
+      MICROMDM_TLS_CERT_FILE: /certs/server.pem
+      MICROMDM_TLS_KEY_FILE: /certs/server-key.pem
+      
+      # Logging
+      MICROMDM_LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      # Certificates directory
+      - ./certs:/certs:ro
+      
+      # Configuration files
+      - micromdm_config:/config
+      
+      # Logs
+      - micromdm_logs:/logs
+    networks:
+      - micromdm-network
+    ports:
+      - "${HTTP_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # SCEP Server for certificate enrollment
+  scep:
+    image: micromdm/scep:latest
+    container_name: scep-server
+    restart: unless-stopped
+    environment:
+      SCEP_HTTP_LISTEN: :8080
+      SCEP_CA_CERT_FILE: /certs/ca.pem
+      SCEP_CA_KEY_FILE: /certs/ca-key.pem
+      SCEP_DEPOT_PATH: /depot
+      SCEP_LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      # Certificates directory
+      - ./certs:/certs:ro
+      
+      # SCEP depot for issued certificates
+      - scep_depot:/depot
+      
+      # Logs
+      - scep_logs:/logs
+    networks:
+      - micromdm-network
+    ports:
+      - "${SCEP_PORT:-8082}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/scep"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: micromdm-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro
+      - certbot_www:/var/www/certbot:ro
+    networks:
+      - micromdm-network
+    depends_on:
+      - nanomdm
+      - scep
+
+  # Certbot for SSL certificate management
+  certbot:
+    image: certbot/certbot:latest
+    container_name: micromdm-certbot
+    profiles:
+      - ssl
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    command: >
+      sh -c "
+        if [ ! -f /etc/letsencrypt/live/${DOMAIN_NAME}/fullchain.pem ]; then
+          certbot certonly --webroot --webroot-path=/var/www/certbot 
+          --email ${ADMIN_EMAIL} --agree-tos --no-eff-email 
+          -d ${DOMAIN_NAME}
+        fi
+      "
+    depends_on:
+      - nginx
+
+volumes:
+  postgres_data:
+    driver: local
+  nanomdm_config:
+    driver: local
+  nanomdm_logs:
+    driver: local
+  micromdm_config:
+    driver: local
+  micromdm_logs:
+    driver: local
+  scep_depot:
+    driver: local
+  scep_logs:
+    driver: local
+  certbot_www:
+    driver: local
+
+networks:
+  micromdm-network:
+    driver: bridge
+
